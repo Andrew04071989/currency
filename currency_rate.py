@@ -47,8 +47,12 @@ class CourseParser(object):
         raw_data = self.get_raw_data_from_html(url)
         date_list = raw_data[0::3]
         days = len([i for i in date_list if i.split(".")[1] == date_list[0].split('.')[1]])
-        daily_course = [float(i.replace(',', '.')) for i in raw_data[2::3]]
-        daily_change = [daily_course[i] - daily_course[i + 1] for i in range(days)]
+        try:
+            daily_course = [float(i.replace(',', '.')) for i in raw_data[2::3]]
+            daily_change = [daily_course[i] - daily_course[i + 1] for i in range(days)]
+        except ValueError:
+            daily_course = [raw_data[2::3][0]] + [float(i.replace(',', '.')) for i in raw_data[2::3][1:]]
+            daily_change = [raw_data[2::3][0]] + [daily_course[i] - daily_course[i + 1] for i in range(1, days)]
         return date_list[:days], daily_course[:days], daily_change
 
     @staticmethod
